@@ -5,10 +5,17 @@
 @section('content')
     <section class="mx-auto grid max-w-5xl gap-6">
         <div>
-            <a href="{{ route('organizations.gear.index', ['organization' => $organization->slug]) }}" class="text-sm font-bold text-forest hover:text-ink">
+            <a href="{{ route('organizations.gear.index', ['organization' => $organization->slug] + $periodInputs) }}" class="text-sm font-bold text-forest hover:text-ink">
                 ← Back to {{ $organization->name }} gear
             </a>
         </div>
+
+        @include('organizations.gear._availability-form', [
+            'organization' => $organization,
+            'action' => route('organizations.gear.show', ['organization' => $organization->slug, 'gearItem' => $gearItem]),
+            'periodInputs' => $periodInputs,
+            'preserved' => [],
+        ])
 
         <div class="grid gap-7 md:grid-cols-2 md:items-start md:gap-10">
             <div class="overflow-hidden rounded-xl border border-border bg-white">
@@ -38,6 +45,20 @@
                 @endif
 
                 <dl class="grid gap-4 border-t border-border pt-5">
+                    @if ($period !== null)
+                        <div role="status" class="grid gap-1 rounded-lg border border-border bg-sage p-4">
+                            <dt class="text-xs font-bold uppercase tracking-wide text-muted">Availability for your selected dates</dt>
+                            <dd class="text-sm font-bold text-forest">
+                                @if ($gearItem->quantity === 1)
+                                    {{ $availableQuantity > 0 ? 'Available for your selected dates.' : 'Not available for these dates.' }}
+                                @elseif ($availableQuantity > 0)
+                                    {{ $availableQuantity }} of {{ $gearItem->quantity }} available.
+                                @else
+                                    Not available for these dates.
+                                @endif
+                            </dd>
+                        </div>
+                    @endif
                     @if ($gearItem->category)
                         <div class="grid gap-1">
                             <dt class="text-xs font-bold uppercase tracking-wide text-muted">Category</dt>

@@ -38,6 +38,11 @@ class Organization extends Model
         return $this->hasMany(GearItem::class);
     }
 
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

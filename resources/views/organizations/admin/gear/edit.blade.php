@@ -15,6 +15,11 @@
                 {{ session('status') }}
             </p>
         @endif
+        @error('gear')
+            <p role="alert" class="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+                {{ $message }}
+            </p>
+        @enderror
 
         @include('organizations.admin.gear._form', [
             'action' => route('organizations.admin.gear.update', ['organization' => $organization->slug, 'gearItem' => $gearItem]),

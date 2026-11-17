@@ -61,3 +61,11 @@ They can create organizations, assign parent organizations, review staff, and de
 ```sh
 php artisan test
 ```
+
+## Availability foundation
+
+Reservations store `starts_at`, `ends_at`, and `returned_at` in UTC. Public date and time inputs are interpreted in the organization's configured timezone; nonexistent and ambiguous daylight-saving times are rejected. Pending and confirmed reservations occupy their scheduled period. Checked-out gear remains occupied through `returned_at`, or indefinitely while that value is null. Completed, cancelled, and declined reservations do not consume availability.
+
+Public availability checks are informational and do not reserve gear. When reservation creation is added, recheck availability inside the same database transaction that creates the reservation. On databases with row-level locks, lock all requested gear rows in ascending ID order with `lockForUpdate()` before recalculating availability, so concurrent requests for the same items serialize. SQLite does not provide row-level `FOR UPDATE` locks; the booking flow must use and test a transaction/write-serialization approach compatible with SQLite rather than relying on the public check.
+
+Gear with reservation history cannot be deleted; mark it unavailable instead.

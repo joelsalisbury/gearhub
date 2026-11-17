@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Organization;
+use App\Models\Reservation;
 use App\Models\User;
 use App\OrganizationRole;
 use Database\Seeders\GearItemSeeder;
@@ -266,6 +267,31 @@ it('stores, replaces, and removes gear photos', function () {
 
     Storage::disk('public')->assertMissing($replacementPhotoPath);
     $this->assertDatabaseMissing('gear_items', ['id' => $gearItem->id]);
+});
+
+it('prevents deleting gear that has reservation history', function () {
+    $organization = Organization::factory()->create();
+    $gearItem = $organization->gearItems()->create([
+        'name' => 'Loaner helmet',
+        'quantity' => 1,
+        'status' => 'active',
+    ]);
+    $reservation = Reservation::factory()->for($organization)->create();
+    $reservation->items()->create(['gear_item_id' => $gearItem->id, 'quantity' => 1]);
+    $user = User::factory()->create();
+    $user->organizations()->attach($organization, ['role' => OrganizationRole::Admin->value]);
+
+    $this->actingAs($user)
+        ->delete(route('organizations.admin.gear.destroy', [
+            'organization' => $organization->slug,
+            'gearItem' => $gearItem,
+        ]))
+        ->assertRedirect()
+        ->assertSessionHasErrors([
+            'gear' => 'Gear with reservation history cannot be deleted. Mark it unavailable instead.',
+        ]);
+
+    $this->assertModelExists($gearItem);
 });
 
 it('rejects non-image photo uploads', function () {

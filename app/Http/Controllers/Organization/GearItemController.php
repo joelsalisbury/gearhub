@@ -128,6 +128,12 @@ class GearItemController extends Controller
 
     public function destroy(Organization $organization, GearItem $gearItem): RedirectResponse
     {
+        if ($gearItem->reservationItems()->exists()) {
+            return back()->withErrors([
+                'gear' => 'Gear with reservation history cannot be deleted. Mark it unavailable instead.',
+            ]);
+        }
+
         $imagePath = $gearItem->image_path;
         $gearItem->delete();
 
