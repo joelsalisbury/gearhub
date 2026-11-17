@@ -26,10 +26,10 @@ Run the command without options to create an organization admin through interact
 php artisan gearhub:make-admin
 ```
 
-For an interactive app-wide admin, add `--app` to the command:
+For an interactive platform admin, add `--platform` to the command. The previous `--app` option remains an alias:
 
 ```sh
-php artisan gearhub:make-admin --app
+php artisan gearhub:make-admin --platform
 ```
 
 For one-line organization-admin creation, set `ADMIN_PASSWORD` in your shell or secret manager, then pass its variable name so the password is not included in the command arguments:
@@ -38,13 +38,23 @@ For one-line organization-admin creation, set `ADMIN_PASSWORD` in your shell or 
 php artisan gearhub:make-admin --organization=qcnemba --name="Your Name" --email=you@example.test --password-env=ADMIN_PASSWORD --no-interaction
 ```
 
-Use `--app` to create an app-wide admin instead. App admins are separate from organization memberships and can access every organization workspace:
+Use `--platform` to create a platform admin instead. Platform admins are separate from organization memberships and can access all organization workspaces:
 
 ```sh
-php artisan gearhub:make-admin --app --name="Your Name" --email=you@example.test --password-env=ADMIN_PASSWORD --no-interaction
+php artisan gearhub:make-admin --platform --name="Your Name" --email=you@example.test --password-env=ADMIN_PASSWORD --no-interaction
 ```
 
-Both modes create a new account and reject an email address already in use. The organization-admin mode assigns the `admin` role only in its specified organization. The app-admin flag cannot be set through normal mass assignment.
+Both modes create a new account and reject an email address already in use. The organization-admin mode assigns the `admin` role only in its specified organization. The platform-admin flag cannot be set through normal mass assignment.
+
+To grant or revoke platform administrator access for an existing user without changing their organization memberships, run:
+
+```sh
+php artisan gearhub:platform-admin you@example.test
+php artisan gearhub:platform-admin you@example.test --revoke
+```
+
+This command never creates accounts. Platform administrators can manage organizations at `/admin/organizations`.
+They can create organizations, assign parent organizations, review staff, and deactivate or reactivate organizations. Organization administrators manage their own organization's staff and settings from its workspace; membership is never inherited from a parent organization.
 
 ## Tests
 

@@ -17,6 +17,7 @@ class HomeController extends Controller
         $searchTerm = trim($validated['q'] ?? '');
 
         $organizations = Organization::query()
+            ->where('is_active', true)
             ->when($searchTerm !== '', function (Builder $query) use ($searchTerm): void {
                 $query->where(function (Builder $query) use ($searchTerm): void {
                     $query->where('name', 'like', '%'.$searchTerm.'%')

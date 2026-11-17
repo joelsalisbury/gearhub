@@ -12,18 +12,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 #[Signature('gearhub:make-admin
-    {--app : Create an administrator for the entire application}
+    {--app : Legacy alias for --platform}
+    {--platform : Create a GearHub platform administrator}
     {--organization= : Organization slug}
     {--name= : Admin name}
     {--email= : Admin email}
     {--password= : Admin password (avoid using in shared shell history)}
     {--password-env= : Environment variable containing the admin password}')]
-#[Description('Create an application-wide or organization admin user')]
+#[Description('Create a platform-wide or organization admin user')]
 class CreateOrganizationAdmin extends Command
 {
     public function handle(): int
     {
-        $isAppAdmin = (bool) $this->option('app');
+        $isPlatformAdmin = (bool) $this->option('app') || (bool) $this->option('platform');
 
         /** @var array{organization: ?string, name: ?string, email: ?string, password: ?string} $values */
         $values = [
@@ -43,14 +44,14 @@ class CreateOrganizationAdmin extends Command
             $values['password'] = $environmentPassword === false ? null : $environmentPassword;
         }
 
-        if ($isAppAdmin && $values['organization'] !== null) {
-            $this->error('--app cannot be used with --organization.');
+        if ($isPlatformAdmin && $values['organization'] !== null) {
+            $this->error('--platform cannot be used with --organization.');
 
             return self::FAILURE;
         }
 
         if ($this->input->isInteractive()) {
-            if (! $isAppAdmin) {
+            if (! $isPlatformAdmin) {
                 $values['organization'] ??= $this->ask('Organization slug');
             }
 
@@ -73,13 +74,13 @@ class CreateOrganizationAdmin extends Command
                 'password' => $values['password'],
             ];
 
-            if (! $isAppAdmin) {
+            if (! $isPlatformAdmin) {
                 $requiredValues['organization'] = $values['organization'];
             }
 
             foreach ($requiredValues as $value) {
                 if (! is_string($value) || trim($value) === '') {
-                    $requiredOptions = $isAppAdmin
+                    $requiredOptions = $isPlatformAdmin
                         ? '--name, --email, and --password or --password-env'
                         : '--organization, --name, --email, and --password or --password-env';
 
@@ -96,7 +97,7 @@ class CreateOrganizationAdmin extends Command
             'password' => ['required', 'string', 'min:12', 'max:255'],
         ];
 
-        if (! $isAppAdmin) {
+        if (! $isPlatformAdmin) {
             $rules['organization'] = ['required', 'string', 'max:255'];
         }
 
@@ -110,25 +111,25 @@ class CreateOrganizationAdmin extends Command
             return self::FAILURE;
         }
 
-        $organization = $isAppAdmin
+        $organization = $isPlatformAdmin
             ? null
             : Organization::query()->where('slug', $values['organization'])->first();
 
-        if (! $isAppAdmin && $organization === null) {
+        if (! $isPlatformAdmin && $organization === null) {
             $this->error("No organization exists with slug [{$values['organization']}].");
 
             return self::FAILURE;
         }
 
-        $user = DB::transaction(function () use ($organization, $values, $isAppAdmin): User {
+        $user = DB::transaction(function () use ($organization, $values, $isPlatformAdmin): User {
             $user = User::create([
                 'name' => $values['name'],
                 'email' => $values['email'],
                 'password' => $values['password'],
             ]);
 
-            if ($isAppAdmin) {
-                $user->forceFill(['is_app_admin' => true])->save();
+            if ($isPlatformAdmin) {
+                $user->forceFill(['is_platform_admin' => true])->save();
             } else {
                 $user->organizations()->attach($organization, [
                     'role' => OrganizationRole::Admin->value,
@@ -138,8 +139,8 @@ class CreateOrganizationAdmin extends Command
             return $user;
         });
 
-        $message = $isAppAdmin
-            ? "App admin user {$user->email} created."
+        $message = $isPlatformAdmin
+            ? "Platform admin user {$user->email} created."
             : "Admin user {$user->email} created for {$organization->name}.";
 
         $this->info($message);

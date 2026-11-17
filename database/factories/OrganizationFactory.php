@@ -22,6 +22,7 @@ class OrganizationFactory extends Factory
             'slug' => fake()->unique()->slug(),
             'description' => fake()->optional()->sentence(),
             'timezone' => 'UTC',
+            'is_active' => true,
         ];
     }
 }

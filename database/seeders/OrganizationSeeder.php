@@ -16,6 +16,7 @@ class OrganizationSeeder extends Seeder
                 'description' => null,
                 'parent_id' => null,
                 'timezone' => 'America/New_York',
+                'is_active' => true,
             ],
         );
 
@@ -26,6 +27,7 @@ class OrganizationSeeder extends Seeder
                 'description' => 'Mountain biking equipment and loaner bikes for Quiet Corner NEMBA riders.',
                 'parent_id' => $nemba->id,
                 'timezone' => 'America/New_York',
+                'is_active' => true,
             ],
         );
     }

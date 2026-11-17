@@ -9,6 +9,16 @@ class OrganizationPolicy
 {
     public function viewWorkspace(User $user, Organization $organization): bool
     {
-        return $user->organizations()->whereKey($organization->getKey())->exists();
+        return $organization->isActive()
+            && $user->organizations()->whereKey($organization->getKey())->exists();
+    }
+
+    public function manageSettings(User $user, Organization $organization): bool
+    {
+        return $organization->isActive()
+            && $user->organizations()
+                ->whereKey($organization->getKey())
+                ->wherePivot('role', 'admin')
+                ->exists();
     }
 }

@@ -30,9 +30,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::before(function (User $user, string $ability): ?bool {
-            return $user->isAppAdmin() ? true : null;
+            return $user->isPlatformAdmin() ? true : null;
         });
 
+        Gate::define('manage-platform', fn (User $user): bool => $user->isPlatformAdmin());
         Gate::policy(Organization::class, OrganizationPolicy::class);
 
         View::composer('layouts.organization', function (ViewContract $view): void {
@@ -42,9 +43,12 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
-            $view->with('staffOrganizations', $user->isAppAdmin()
+            $view->with('staffOrganizations', $user->isPlatformAdmin()
                 ? Organization::query()->orderBy('name')->get()
-                : $user->organizations()->orderBy('name')->get());
+                : $user->organizations()
+                    ->where('is_active', true)
+                    ->orderBy('name')
+                    ->get());
         });
 
         RateLimiter::for('login', function (Request $request) {

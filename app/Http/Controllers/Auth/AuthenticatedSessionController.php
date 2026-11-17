@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +32,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'));
+        /** @var User $user */
+        $user = $request->user();
+
+        return redirect()->intended($this->destinationFor($user));
     }
 
     public function destroy(Request $request): RedirectResponse
@@ -42,5 +46,23 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('home');
+    }
+
+    private function destinationFor(User $user): string
+    {
+        if ($user->isPlatformAdmin()) {
+            return route('platform.organizations.index');
+        }
+
+        $organizations = $user->organizations()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        if ($organizations->count() === 1) {
+            return route('organizations.admin', ['organization' => $organizations->first()->slug]);
+        }
+
+        return route('workspaces.index');
     }
 }

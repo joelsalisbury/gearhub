@@ -37,4 +37,21 @@ class Organization extends Model
     {
         return $this->hasMany(GearItem::class);
     }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active === true;
+    }
 }

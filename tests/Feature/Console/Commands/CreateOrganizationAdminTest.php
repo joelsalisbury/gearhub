@@ -57,7 +57,7 @@ it('creates an organization admin from one-line options', function () {
     ]);
 });
 
-it('creates an app admin from one-line options without organization membership', function () {
+it('creates a platform admin from one-line options without organization membership', function () {
     putenv('GEARHUB_TEST_ADMIN_PASSWORD=another-long-password');
 
     try {
@@ -68,7 +68,7 @@ it('creates an app admin from one-line options without organization membership',
             '--password-env' => 'GEARHUB_TEST_ADMIN_PASSWORD',
             '--no-interaction' => true,
         ])
-            ->expectsOutputToContain('App admin user morgan@example.test created.')
+            ->expectsOutputToContain('Platform admin user morgan@example.test created.')
             ->assertSuccessful();
     } finally {
         putenv('GEARHUB_TEST_ADMIN_PASSWORD');
@@ -77,11 +77,11 @@ it('creates an app admin from one-line options without organization membership',
     $user = User::where('email', 'morgan@example.test')->firstOrFail();
 
     expect(Hash::check('another-long-password', $user->password))->toBeTrue()
-        ->and($user->isAppAdmin())->toBeTrue()
+        ->and($user->isPlatformAdmin())->toBeTrue()
         ->and($user->organizations()->exists())->toBeFalse();
 });
 
-it('rejects an app admin command that also specifies an organization', function () {
+it('rejects a platform admin creation command that also specifies an organization', function () {
     $this->artisan('gearhub:make-admin', [
         '--app' => true,
         '--organization' => 'tool-library',
@@ -90,7 +90,7 @@ it('rejects an app admin command that also specifies an organization', function 
         '--password' => 'another-long-password',
         '--no-interaction' => true,
     ])
-        ->expectsOutputToContain('--app cannot be used with --organization.')
+        ->expectsOutputToContain('--platform cannot be used with --organization.')
         ->assertFailed();
 
     $this->assertDatabaseMissing('users', ['email' => 'morgan@example.test']);

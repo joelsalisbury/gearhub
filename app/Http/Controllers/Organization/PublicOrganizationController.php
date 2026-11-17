@@ -10,6 +10,8 @@ class PublicOrganizationController extends Controller
 {
     public function show(Organization $organization): View
     {
+        abort_unless($organization->isActive(), 404);
+
         return view('organizations.show', [
             'organization' => $organization,
         ]);

@@ -25,9 +25,9 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    public function isAppAdmin(): bool
+    public function isPlatformAdmin(): bool
     {
-        return $this->is_app_admin === true;
+        return $this->is_platform_admin === true;
     }
 
     /**
@@ -39,7 +39,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'is_app_admin' => 'boolean',
+            'is_platform_admin' => 'boolean',
             'password' => 'hashed',
         ];
     }

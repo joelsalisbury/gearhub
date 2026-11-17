@@ -33,7 +33,7 @@ it('shows organization discovery instead of sign in to authenticated visitors', 
     $this->actingAs(User::factory()->create())
         ->get(route('home'))
         ->assertOk()
-        ->assertSee('Find an organization')
+        ->assertSee('Your workspaces')
         ->assertDontSee('Staff sign in');
 });
 
@@ -60,6 +60,21 @@ it('renders different organizations using their own bound context', function () 
         ->assertSee('Town Tool Library')
         ->assertSee('Tools for neighborhood projects.')
         ->assertDontSee('Quiet Corner NEMBA');
+});
+
+it('escapes organization names and descriptions on public pages', function () {
+    $organization = Organization::factory()->create([
+        'name' => '<script>alert(1)</script>',
+        'slug' => 'safe-output',
+        'description' => '<img src=x onerror=alert(1)>',
+    ]);
+
+    $this->get(route('organizations.show', ['organization' => $organization->slug]))
+        ->assertOk()
+        ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)
+        ->assertSee('&lt;img src=x onerror=alert(1)&gt;', false)
+        ->assertDontSee('<script>alert(1)</script>', false)
+        ->assertDontSee('<img src=x onerror=alert(1)>', false);
 });
 
 it('returns no matches when there are no organizations', function () {
@@ -164,11 +179,11 @@ it('denies a nonmember access to an organization workspace', function () {
         ->assertForbidden();
 });
 
-it('allows an app admin to access an organization without membership', function () {
+it('allows a platform admin to access an organization without membership', function () {
     $organization = Organization::factory()->create();
     $otherOrganization = Organization::factory()->create();
     $user = User::factory()->create();
-    $user->forceFill(['is_app_admin' => true])->save();
+    $user->forceFill(['is_platform_admin' => true])->save();
 
     $this->actingAs($user)
         ->get(route('organizations.admin', ['organization' => $organization->slug]))
@@ -179,15 +194,15 @@ it('allows an app admin to access an organization without membership', function 
     expect($user->organizations()->exists())->toBeFalse();
 });
 
-it('does not allow the app admin flag to be mass assigned', function () {
+it('does not allow the platform admin flag to be mass assigned', function () {
     $user = User::create([
         'name' => 'Taylor Volunteer',
         'email' => 'taylor@example.test',
         'password' => 'a-long-local-password',
-        'is_app_admin' => true,
+        'is_platform_admin' => true,
     ]);
 
-    expect($user->isAppAdmin())->toBeFalse();
+    expect($user->isPlatformAdmin())->toBeFalse();
 });
 
 it('does not grant child access through parent organization membership', function () {

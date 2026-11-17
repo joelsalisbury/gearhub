@@ -87,20 +87,20 @@ it('paginates inventory for the active organization', function () {
         ->assertSee('Shared tool 16');
 });
 
-it('allows app admins to view inventory without organization membership', function () {
+it('allows platform admins to view inventory without organization membership', function () {
     $organization = Organization::factory()->create();
     $organization->gearItems()->create([
-        'name' => 'App admin viewable gear',
+        'name' => 'Platform admin viewable gear',
         'quantity' => 1,
         'status' => 'active',
     ]);
     $user = User::factory()->create();
-    $user->forceFill(['is_app_admin' => true])->save();
+    $user->forceFill(['is_platform_admin' => true])->save();
 
     $this->actingAs($user)
         ->get(route('organizations.admin.gear.index', ['organization' => $organization->slug]))
         ->assertOk()
-        ->assertSee('App admin viewable gear')
+        ->assertSee('Platform admin viewable gear')
         ->assertSee($organization->name);
 
     expect($user->organizations()->exists())->toBeFalse();

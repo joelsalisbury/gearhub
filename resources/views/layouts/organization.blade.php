@@ -37,6 +37,12 @@
                         </div>
                     </details>
 
+                    @if (auth()->user()->isPlatformAdmin())
+                        <a href="{{ route('platform.organizations.index') }}" class="text-sm font-bold text-forest hover:text-ink">
+                            Platform
+                        </a>
+                    @endif
+
                     <div class="flex items-center gap-3 border-l border-border pl-4">
                         <span class="max-w-36 truncate text-sm font-medium text-muted">{{ auth()->user()->name }}</span>
                         <form method="POST" action="{{ route('logout') }}">
@@ -62,10 +68,24 @@
                 >
                     Gear
                 </a>
+                @can('manageSettings', $organization)
+                    <a
+                        href="{{ route('organizations.admin.settings.edit', ['organization' => $organization->slug]) }}"
+                        @if (request()->routeIs('organizations.admin.settings.*')) aria-current="page" @endif
+                        class="border-b-2 pb-2 text-sm {{ request()->routeIs('organizations.admin.settings.*') ? 'border-forest font-bold text-forest' : 'border-transparent text-muted hover:text-forest' }}"
+                    >
+                        Settings
+                    </a>
+                @endcan
             </nav>
         </header>
 
         <main class="mx-auto w-full max-w-6xl flex-1 px-5 py-10 md:px-8 md:py-14">
+            @if (session('status'))
+                <p class="mb-6 rounded-lg border border-border bg-sage px-4 py-3 text-sm text-forest" role="status">
+                    {{ session('status') }}
+                </p>
+            @endif
             @yield('content')
         </main>
 

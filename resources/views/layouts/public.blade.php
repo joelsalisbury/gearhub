@@ -18,7 +18,7 @@
                 @guest
                     <a href="{{ route('login') }}" class="text-sm font-bold text-forest hover:text-ink">Staff sign in</a>
                 @else
-                    <a href="{{ route('home') }}" class="text-sm font-bold text-forest hover:text-ink">Find an organization</a>
+                    <a href="{{ route('workspaces.index') }}" class="text-sm font-bold text-forest hover:text-ink">Your workspaces</a>
                 @endguest
             </nav>
         </header>

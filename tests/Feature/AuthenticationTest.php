@@ -1,22 +1,27 @@
 <?php
 
+use App\Models\Organization;
 use App\Models\User;
+use App\OrganizationRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 it('authenticates staff and returns them to their intended page', function () {
+    $organization = Organization::factory()->create(['slug' => 'tool-library']);
     $user = User::factory()->create([
         'password' => 'local-password',
     ]);
+    $user->organizations()->attach($organization, ['role' => OrganizationRole::Admin->value]);
 
-    $this->get('/qcnemba/admin')->assertRedirectToRoute('login');
+    $this->get(route('organizations.admin', ['organization' => $organization->slug]))
+        ->assertRedirectToRoute('login');
 
     $this->post(route('login.store'), [
         'email' => $user->email,
         'password' => 'local-password',
     ])
-        ->assertRedirect('/qcnemba/admin')
+        ->assertRedirect(route('organizations.admin', ['organization' => $organization->slug]))
         ->assertSessionHasNoErrors();
 
     $this->assertAuthenticatedAs($user);
