@@ -32,4 +32,9 @@ class Organization extends Model
             ->withPivot('role')
             ->withTimestamps();
     }
+
+    public function gearItems(): HasMany
+    {
+        return $this->hasMany(GearItem::class);
+    }
 }

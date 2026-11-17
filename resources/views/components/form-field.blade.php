@@ -3,6 +3,7 @@
     'label',
     'type' => 'text',
     'autocomplete' => null,
+    'value' => null,
 ])
 
 <div class="grid gap-1.5">
@@ -11,7 +12,7 @@
         id="{{ $name }}"
         name="{{ $name }}"
         type="{{ $type }}"
-        @if ($type !== 'password') value="{{ old($name) }}" @endif
+        @if ($type !== 'password') value="{{ old($name, $value) }}" @endif
         @if ($autocomplete) autocomplete="{{ $autocomplete }}" @endif
         @if ($errors->has($name)) aria-invalid="true" aria-describedby="{{ $name }}-error" @endif
         {{ $attributes->merge(['class' => 'min-h-11 w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-ink outline-none focus:border-leaf focus:ring-2 focus:ring-leaf/20']) }}

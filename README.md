@@ -8,6 +8,7 @@ GearHub is a small Laravel application for organizations that lend shared equipm
 composer install
 npm install
 php artisan migrate --seed
+php artisan storage:link
 npm run build
 php artisan serve
 ```
@@ -15,6 +16,7 @@ php artisan serve
 For a fresh checkout only, copy `.env.example` to `.env` if one does not already exist, then generate an application key with `php artisan key:generate`.
 
 The seeder creates NEMBA and its child organization, Quiet Corner NEMBA (`/qcnemba`). It does not create users or passwords.
+When `APP_ENV=local`, the default seeder also adds repeatable example gear for Quiet Corner NEMBA. Inventory seed data is not automatically added in other environments.
 
 ## Create an admin
 

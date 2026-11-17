@@ -15,5 +15,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(OrganizationSeeder::class);
+
+        if (app()->isLocal()) {
+            $this->call(GearItemSeeder::class);
+        }
     }
 }

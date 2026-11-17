@@ -48,8 +48,19 @@
             </div>
 
             <nav class="mx-auto flex w-full max-w-6xl gap-6 px-5 pb-3 md:px-8" aria-label="Organization workspace">
-                <a href="{{ route('organizations.admin', ['organization' => $organization->slug]) }}" aria-current="page" class="border-b-2 border-forest pb-2 text-sm font-bold text-forest">
+                <a
+                    href="{{ route('organizations.admin', ['organization' => $organization->slug]) }}"
+                    @if (request()->routeIs('organizations.admin')) aria-current="page" @endif
+                    class="border-b-2 pb-2 text-sm {{ request()->routeIs('organizations.admin') ? 'border-forest font-bold text-forest' : 'border-transparent text-muted hover:text-forest' }}"
+                >
                     Overview
+                </a>
+                <a
+                    href="{{ route('organizations.admin.gear.index', ['organization' => $organization->slug]) }}"
+                    @if (request()->routeIs('organizations.admin.gear.*')) aria-current="page" @endif
+                    class="border-b-2 pb-2 text-sm {{ request()->routeIs('organizations.admin.gear.*') ? 'border-forest font-bold text-forest' : 'border-transparent text-muted hover:text-forest' }}"
+                >
+                    Gear
                 </a>
             </nav>
         </header>

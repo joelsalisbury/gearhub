@@ -12,8 +12,11 @@
         <div class="rounded-xl border border-border bg-white p-5 sm:p-6">
             <h2 class="text-lg font-bold text-ink">Your organization workspace</h2>
             <p class="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-                This is the starting point for {{ $organization->name }}. Gear and reservation tools will be added in later steps.
+                Manage the equipment {{ $organization->name }} lends to its community.
             </p>
+            <div class="mt-5">
+                <x-button href="{{ route('organizations.admin.gear.index', ['organization' => $organization->slug]) }}">Manage gear</x-button>
+            </div>
         </div>
     </section>
 @endsection

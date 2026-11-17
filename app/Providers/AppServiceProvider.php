@@ -6,9 +6,11 @@ use App\Models\Organization;
 use App\Models\User;
 use App\Policies\OrganizationPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 
@@ -32,6 +34,18 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::policy(Organization::class, OrganizationPolicy::class);
+
+        View::composer('layouts.organization', function (ViewContract $view): void {
+            $user = request()->user();
+
+            if ($user === null) {
+                return;
+            }
+
+            $view->with('staffOrganizations', $user->isAppAdmin()
+                ? Organization::query()->orderBy('name')->get()
+                : $user->organizations()->orderBy('name')->get());
+        });
 
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by(Str::transliterate(
