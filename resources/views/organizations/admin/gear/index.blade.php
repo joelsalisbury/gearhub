@@ -9,9 +9,14 @@
                 <p class="font-mono text-xs font-medium uppercase tracking-wider text-leaf">{{ $organization->name }}</p>
                 <h1 class="text-3xl font-bold tracking-tight text-ink">Gear</h1>
             </div>
-            <x-button class="self-start" href="{{ route('organizations.admin.gear.create', ['organization' => $organization->slug]) }}">
-                Add gear
-            </x-button>
+            <div class="flex flex-wrap gap-3">
+                <x-button href="{{ route('organizations.gear.index', ['organization' => $organization->slug]) }}" variant="secondary">
+                    View public catalog
+                </x-button>
+                <x-button class="self-start" href="{{ route('organizations.admin.gear.create', ['organization' => $organization->slug]) }}">
+                    Add gear
+                </x-button>
+            </div>
         </div>
 
         @if (session('status'))

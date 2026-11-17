@@ -14,6 +14,9 @@ class PublicOrganizationController extends Controller
 
         return view('organizations.show', [
             'organization' => $organization,
+            'hasPublicGear' => $organization->gearItems()
+                ->where('status', 'active')
+                ->exists(),
         ]);
     }
 }

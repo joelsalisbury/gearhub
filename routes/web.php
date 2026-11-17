@@ -6,6 +6,7 @@ use App\Http\Controllers\Organization\GearItemController;
 use App\Http\Controllers\Organization\OrganizationDashboardController;
 use App\Http\Controllers\Organization\OrganizationSettingsController;
 use App\Http\Controllers\Organization\OrganizationStaffController;
+use App\Http\Controllers\Organization\PublicGearController;
 use App\Http\Controllers\Organization\PublicOrganizationController;
 use App\Http\Controllers\Platform\OrganizationController as PlatformOrganizationController;
 use App\Http\Controllers\WorkspaceSelectionController;
@@ -45,6 +46,13 @@ Route::middleware(['auth', 'can:manage-platform'])
 Route::get('/{organization:slug}/admin', OrganizationDashboardController::class)
     ->middleware(['auth', 'can:viewWorkspace,organization'])
     ->name('organizations.admin');
+
+Route::scopeBindings()->group(function () {
+    Route::get('/{organization:slug}/gear', [PublicGearController::class, 'index'])
+        ->name('organizations.gear.index');
+    Route::get('/{organization:slug}/gear/{gearItem}', [PublicGearController::class, 'show'])
+        ->name('organizations.gear.show');
+});
 
 Route::scopeBindings()->group(function () {
     Route::middleware(['auth', 'can:viewWorkspace,organization'])

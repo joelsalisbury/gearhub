@@ -14,11 +14,18 @@
 
         <div class="grid gap-4 rounded-xl border border-border bg-white p-5 sm:p-6">
             <div>
-                <h2 class="text-lg font-bold text-ink">Equipment lending</h2>
-                <p class="mt-1 text-sm leading-relaxed text-muted">Public gear listings are not available yet.</p>
+                <h2 class="text-lg font-bold text-ink">Gear catalog</h2>
+                @if ($hasPublicGear)
+                    <p class="mt-1 text-sm leading-relaxed text-muted">Browse the equipment {{ $organization->name }} lists for its community.</p>
+                @else
+                    <p class="mt-1 text-sm leading-relaxed text-muted">This organization has not listed any public gear yet.</p>
+                @endif
             </div>
-            <div>
-                <x-button href="{{ route('organizations.admin', ['organization' => $organization->slug]) }}" variant="secondary">Staff sign in</x-button>
+            <div class="flex flex-wrap items-center gap-4">
+                <x-button href="{{ route('organizations.gear.index', ['organization' => $organization->slug]) }}">Browse gear</x-button>
+                <a href="{{ route('organizations.admin', ['organization' => $organization->slug]) }}" class="text-sm font-bold text-forest underline underline-offset-2">
+                    Staff sign in
+                </a>
             </div>
         </div>
     </section>
